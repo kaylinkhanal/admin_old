@@ -1,0 +1,39 @@
+image: python:latest
+
+stages:
+  - development
+  - production
+
+development:
+  stage: development
+  script:
+    - apt-get install curl -y && curl -sL https://deb.nodesource.com/setup_8.x | bash - && apt-get install nodejs npm -y
+    - npm install
+    - export REACT_APP_BASE_URL=http://13.57.247.65/
+    - CI=false node_modules/.bin/react-scripts build
+    - echo development Project - Live
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws s3 rm s3://web-admin-11122019-development --recursive --exclude "public/*"
+    - aws s3 sync build/ s3://web-admin-11122019-development --acl public-read --exclude "public/*"
+  only:
+    - develop
+
+production:
+  stage: production
+  script:
+    - apt-get install curl -y && curl -sL https://deb.nodesource.com/setup_8.x | bash - && apt-get install nodejs npm -y
+    - npm install
+    - export NODE_ENV=production
+    - export REACT_APP_BASE_URL=http://54.153.94.226/
+    - CI=false node_modules/.bin/react-scripts build
+    - echo Production Project - Live
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws s3 rm s3://web-admin-11122019 --recursive --exclude "public/*"
+    - aws s3 sync build/ s3://web-admin-11122019 --acl public-read --exclude "public/*"
+  when: manual
+  only:
+    - master # Run master branch

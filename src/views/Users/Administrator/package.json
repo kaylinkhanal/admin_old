@@ -1,0 +1,6 @@
+{
+  "name": "Restaurant Owners",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./RestaurantOwners.js"
+}
